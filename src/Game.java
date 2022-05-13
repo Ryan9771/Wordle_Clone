@@ -1,6 +1,4 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class Game {
 
@@ -41,26 +39,45 @@ public class Game {
         res.add(i);
       }
     }
+    gameOver = res.size() == 5;
     return res;
   }
 
   public List<Integer> returnOrange(String word) {
+    final Map<Character, Integer> map =
+        new HashMap<>(); // uses a map to keep track of each letter's frequency.
     List<Integer> green = returnGreen(word);
     List<Integer> res = new ArrayList<>();
+
+    // Loop through green indexes and mark as full accordingly
+
+    for (int i : green) {
+      map.merge(word.charAt(i), 1, Integer::sum);
+    }
+
     for (int i = 0; i < 5; i++) {
-      if (goalWord.contains(Character.toString(word.charAt(i)))) {
-        if (!green.contains(i)) {
-          res.add(i);
+      char charAt = word.charAt(i);
+      if (goalWord.contains(Character.toString(charAt))) {
+        if (map.containsKey(charAt)) { // check if map contains key
+          if (map.get(charAt)
+              < goalWord.chars().filter(ch -> ch == charAt).count()) { // if curr Freq < goal freq
+            if (!green.contains(i)) {
+              map.merge(charAt, 1, Integer::sum);
+              res.add(i); // Then add to the res
+            }
+          }
+        } else { // if letter in word and not in map, add it to the map
+          map.put(charAt, 1);
+          if (!green.contains(i)) {
+            res.add(i);
+          }
         }
       }
     }
     return res;
   }
 
-  public static void main(String[] args) {
-    List<Integer> test = new ArrayList<>(List.of(1, 10, 2));
-    System.out.println(test);
-    test.removeAll(Collections.singleton(1));
-    System.out.println(test);
+  public boolean isGameOver() {
+    return gameOver;
   }
 }

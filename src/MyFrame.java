@@ -11,6 +11,8 @@ public class MyFrame extends JFrame implements KeyListener {
   private int rowProg;
   private int currAttempt;
   private final JButton[] letters = new JButton[30];
+  private final JLabel revealWord = new JLabel();
+
 
   public MyFrame() {
     ImageIcon logo = new ImageIcon("logo.png");
@@ -24,12 +26,25 @@ public class MyFrame extends JFrame implements KeyListener {
     setLayout(null);
     // pack();
 
-    // Label
+    // Label title
     JLabel header = new JLabel();
     header.setText("Wordle");
     header.setFont(new Font("Calibri", Font.BOLD, 40));
     header.setForeground(Color.WHITE);
     header.setBounds(170, 10, 500, 50);
+
+    // Game
+    this.game = new Game();
+    this.rowProg = 0;
+    this.currAttempt = 0;
+
+    // Label game over word
+    revealWord.setText("The word was : " + game.getWord());
+    revealWord.setFont(new Font("Calibri", Font.BOLD, 20));
+    revealWord.setForeground(new Color(0x10D445));
+    revealWord.setBounds(130, 480, 400, 100);
+    revealWord.setVisible(false);
+
 
     // Panel for the words
     JPanel panel = new JPanel();
@@ -43,9 +58,10 @@ public class MyFrame extends JFrame implements KeyListener {
       JButton tempButton = new JButton();
       tempButton.setBorder(new LineBorder(Color.GRAY));
       tempButton.setFocusable(false);
-      tempButton.setOpaque(true);
+      tempButton.setOpaque(false);
       tempButton.setForeground(Color.white);
       tempButton.setBackground(Color.black);
+      tempButton.setFont(new Font("Calibri", Font.BOLD, 15));
       letters[i] = tempButton;
       panel.add(tempButton);
     }
@@ -54,14 +70,10 @@ public class MyFrame extends JFrame implements KeyListener {
     this.add(header);
     this.add(panel);
     setVisible(true);
+    this.add(revealWord);
 
     // Adding key listener
     this.addKeyListener(this);
-
-    // Game
-    this.game = new Game();
-    this.rowProg = 0;
-    this.currAttempt = 0;
 
   }
 
@@ -82,14 +94,11 @@ public class MyFrame extends JFrame implements KeyListener {
 
     int code = e.getKeyCode();
 
-    if (code >= 65 && code <= 90 && rowProg < 5) {
+    if (code >= 65 && code <= 90 && rowProg < 5) { // checking for valid letters
       letters[nextIndex()].setText(Character.toString(code));
       rowProg++;
     } else {
-
       switch (code) {
-
-
         case 8 -> { // Backspace
           if (rowProg != 0) {
             rowProg--;
@@ -97,35 +106,41 @@ public class MyFrame extends JFrame implements KeyListener {
           }
         }
 
-
         case 10 -> { // Enter
           if (rowProg == 5) {
-            rowProg = 0;
-            if (currAttempt < 5) {
-              currAttempt++;
-            } // Else: Method to end game
 
+            // Create a string out of chars entered
             StringBuilder input = new StringBuilder();
             int startIndex = nextIndex() - 5;
             for (int i = startIndex; i < nextIndex(); i++) {
               input.append(letters[i].getText());
             }
 
+            // Return indexes in and out of place
+
             List<Integer> indexesInPlace = game.returnGreen(input.toString());
             List<Integer> indexesOutPlace = game.returnOrange(input.toString());
 
+            // Set colours based on these indexes
+
             for (int i = startIndex; i < nextIndex(); i++) {
+              letters[i].setOpaque(true);
               if (indexesInPlace.contains(i - startIndex)) {
-                letters[i].setBackground(Color.green);
+                letters[i].setBackground(new Color(0x30a067)); // green ish
               } else if (indexesOutPlace.contains(i - startIndex)) {
-                letters[i].setBackground(Color.orange);
+                letters[i].setBackground(new Color(0xcc8d3d)); // orange-ish yellow
               } else {
-                letters[i].setBackground(Color.black);
+                letters[i].setBackground(new Color(0x434545)); // greyish
               }
+            }
+            if (currAttempt < 5 && !game.isGameOver()) {
+              currAttempt++;
+              rowProg = 0;
+            } else {
+              revealWord.setVisible(true);
             }
           }
         }
-
 
         default -> {}
       }
