@@ -4,3 +4,5 @@ public class Main {
     new MyFrame();
   }
 }
+
+// This is a random comment
