@@ -209,11 +209,4 @@ public class Words {
     Random random = new Random();
     return words[random.nextInt(words.length)];
   }
-
-  public static final String[] customWords = {"BOOBY", "URFAT", "BUTOC", "BOOBS", "POOPY", "FATTY", "CHOOP"};
-
-  public static String getCustomWord() {
-    Random random = new Random();
-    return customWords[random.nextInt(customWords.length)];
-  }
 }
